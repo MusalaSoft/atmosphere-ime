@@ -21,12 +21,38 @@ public class IncomingReceiver extends BroadcastReceiver
 
 		if (intent.getAction().equals(AtmosphereIME.CUSTOM_INTENT))
 		{
-			int intentExtra = intent.getIntExtra("t", -1); // If it returns -1 it means no characters have been
-															// inputted. This usually can't happen.
-			if (intentExtra != -1)
+			int[] intentExtraArray = intent.getIntArrayExtra("text");
+			int inputInterval = intent.getIntExtra("interval", -1); // If it returns -1 it means no interval has been
+			// inputted.
+			if (intentExtraArray.length != 0)
 			{
-				String textToInput = new String(Character.toChars(intentExtra));
-				inputConnection.commitText(textToInput, textToInput.length());
+				StringBuilder textToCommit = new StringBuilder();
+				for (int iterator = 0; iterator < intentExtraArray.length; iterator++)
+				{
+					textToCommit.append((Character.toChars(intentExtraArray[iterator])));
+				}
+				if (inputInterval == -1)
+				{
+					inputConnection.commitText(textToCommit.toString(), textToCommit.length());
+				}
+				else
+				{
+					String text = textToCommit.toString();
+					for (char current : text.toCharArray())
+					{
+						String input = new String(Character.toString(current));
+						inputConnection.commitText(input, input.length());
+						try
+						{
+							Thread.sleep(inputInterval);
+						}
+						catch (InterruptedException e)
+						{
+							// Interrupted sleep. Nothing to do here.
+							e.printStackTrace();
+						}
+					}
+				}
 			}
 		}
 	}
