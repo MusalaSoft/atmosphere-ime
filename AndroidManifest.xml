@@ -1,0 +1,23 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        package="com.musala.atmosphere.ime"
+        android:versionCode="16"
+        android:versionName="1.0">
+	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="17"></uses-sdk>
+    <application android:label="AtmosphereIME"  android:icon="@drawable/logo">
+        <service android:name="AtmosphereIME"
+                android:label="AtmosphereIME"
+                android:permission="android.permission.BIND_INPUT_METHOD">
+            <intent-filter>
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
+            <meta-data android:name="android.view.im" android:resource="@xml/method" />
+        </service>
+        <activity android:name="AtmosphereIMESettings" android:label="Atmosphere IME">
+<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+    </application>
+</manifest>
