@@ -19,15 +19,14 @@ package com.musala.atmosphere.ime;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
-public class AtmosphereIMESettings extends PreferenceActivity
-{
+public class AtmosphereIMESettings extends PreferenceActivity {
 
-	@Override
-	protected void onCreate(Bundle icicle)
-	{
-		super.onCreate(icicle);
+    @SuppressWarnings("deprecation")
+    @Override
+    protected void onCreate(Bundle icicle) {
+        super.onCreate(icicle);
 
-		addPreferencesFromResource(R.xml.prefs);
-	}
+        addPreferencesFromResource(R.xml.prefs);
+    }
 
 }
