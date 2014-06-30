@@ -30,88 +30,76 @@ import android.widget.LinearLayout;
  * Based entirely on the example provided by Google SDK in their Soft Keyboard Example.
  */
 
-public class AtmosphereIME extends InputMethodService implements KeyboardView.OnKeyboardActionListener
-{
+public class AtmosphereIME extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
 
-	public static final String CUSTOM_INTENT = "atmosphere.intent.action.TEXT";
+    public static final String CUSTOM_INTENT = "atmosphere.intent.action.TEXT";
 
-	/**
-	 * Main initialization of the input method component. Be sure to call to super class.
-	 */
-	@Override
-	public void onCreate()
-	{
-		super.onCreate();
-		IncomingReceiver intentListener = new IncomingReceiver(this);
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(CUSTOM_INTENT);
-		this.getApplicationContext().registerReceiver(intentListener, filter);
-	}
+    /**
+     * Main initialization of the input method component. Be sure to call to super class.
+     */
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        IncomingReceiver intentListener = new IncomingReceiver(this);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(CUSTOM_INTENT);
+        this.getApplicationContext().registerReceiver(intentListener, filter);
+    }
 
-	/**
-	 * This is the point where you can do all of your UI initialization. It is called after creation and any
-	 * configuration change.
-	 */
-	@Override
-	public void onInitializeInterface()
-	{
-		new Keyboard(this, R.xml.blank);
-	}
+    /**
+     * This is the point where you can do all of your UI initialization. It is called after creation and any
+     * configuration change.
+     */
+    @Override
+    public void onInitializeInterface() {
+        new Keyboard(this, R.xml.blank);
+    }
 
-	@Override
-	public View onCreateInputView()
-	{
-		LinearLayout layout = new LinearLayout(this);
+    @Override
+    public View onCreateInputView() {
+        LinearLayout layout = new LinearLayout(this);
 
-		layout.setBackgroundColor(Color.BLACK);
+        layout.setBackgroundColor(Color.BLACK);
 
-		ImageView image = new ImageView(this);
-		image.setImageResource(R.drawable.story);
-		image.setPadding(30, 30, 30, 30);
-		layout.setGravity(Gravity.CENTER);
-		layout.addView(image);
+        ImageView image = new ImageView(this);
+        image.setImageResource(R.drawable.story);
+        image.setPadding(30, 30, 30, 30);
+        layout.setGravity(Gravity.CENTER);
+        layout.addView(image);
 
-		return layout;
-	}
+        return layout;
+    }
 
-	@Override
-	public void onKey(int primaryCode, int[] keyCodes)
-	{
-	}
+    @Override
+    public void onKey(int primaryCode, int[] keyCodes) {
+    }
 
-	@Override
-	public void onPress(int primaryCode)
-	{
-	}
+    @Override
+    public void onPress(int primaryCode) {
+    }
 
-	@Override
-	public void onRelease(int primaryCode)
-	{
-	}
+    @Override
+    public void onRelease(int primaryCode) {
+    }
 
-	@Override
-	public void onText(CharSequence text)
-	{
-	}
+    @Override
+    public void onText(CharSequence text) {
+    }
 
-	@Override
-	public void swipeDown()
-	{
-	}
+    @Override
+    public void swipeDown() {
+    }
 
-	@Override
-	public void swipeLeft()
-	{
-	}
+    @Override
+    public void swipeLeft() {
+    }
 
-	@Override
-	public void swipeRight()
-	{
-	}
+    @Override
+    public void swipeRight() {
+    }
 
-	@Override
-	public void swipeUp()
-	{
-	}
+    @Override
+    public void swipeUp() {
+    }
 
 }
