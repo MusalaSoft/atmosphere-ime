@@ -16,23 +16,52 @@
 
 package com.musala.atmosphere.ime;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
-import android.inputmethodservice.KeyboardView;
 import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.InputConnection;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 /**
  * Based entirely on the example provided by Google SDK in their Soft Keyboard Example.
  */
+public class AtmosphereIME extends InputMethodService {
+    private static final String EXTRA_TEXT_NAME = "text";
 
-public class AtmosphereIME extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
+    private static final String EXTRA_INTERVAL_NAME = "interval";
 
-    public static final String CUSTOM_INTENT = "atmosphere.intent.action.TEXT";
+    private static final int INTERVAL_DEFAULT_VALUE = 0;
+
+    private IncomingReceiver intentListener;
+
+    private InputConnection inputConnection;
+
+    public class IncomingReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            KeyboardAction intentAction = KeyboardAction.fromAction(intent.getAction());
+
+            if (intentAction != null) {
+                switch (intentAction) {
+                    case CUSTOM_INPUT_TEXT_INTENT:
+                        onReceiveInputText(intent);
+                        break;
+                    case CUSTOM_DELETE_ALL_INTENT:
+                        onReceiveDelete();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
 
     /**
      * Main initialization of the input method component. Be sure to call to super class.
@@ -40,9 +69,10 @@ public class AtmosphereIME extends InputMethodService implements KeyboardView.On
     @Override
     public void onCreate() {
         super.onCreate();
-        IncomingReceiver intentListener = new IncomingReceiver(this);
+        intentListener = new IncomingReceiver();
         IntentFilter filter = new IntentFilter();
-        filter.addAction(CUSTOM_INTENT);
+        filter.addAction(KeyboardAction.CUSTOM_INPUT_TEXT_INTENT.action);
+        filter.addAction(KeyboardAction.CUSTOM_DELETE_ALL_INTENT.action);
         this.getApplicationContext().registerReceiver(intentListener, filter);
     }
 
@@ -70,36 +100,48 @@ public class AtmosphereIME extends InputMethodService implements KeyboardView.On
         return layout;
     }
 
-    @Override
-    public void onKey(int primaryCode, int[] keyCodes) {
+    public void onReceiveInputText(Intent intent) {
+        int[] intentExtraArray = intent.getIntArrayExtra(EXTRA_TEXT_NAME);
+        int inputInterval = intent.getIntExtra(EXTRA_INTERVAL_NAME, INTERVAL_DEFAULT_VALUE);
+
+        inputConnection = getCurrentInputConnection();
+
+        if (intentExtraArray.length != 0) {
+            StringBuilder textToCommit = new StringBuilder();
+
+            for (int intentExtraChar : intentExtraArray) {
+                textToCommit.append((Character.toChars(intentExtraChar)));
+            }
+
+            String text = textToCommit.toString();
+
+            if (inputInterval == INTERVAL_DEFAULT_VALUE) {
+                inputConnection.commitText(text, text.length());
+            } else {
+                for (char current : text.toCharArray()) {
+                    String input = new String(Character.toString(current));
+                    inputConnection.commitText(input, input.length());
+
+                    try {
+                        Thread.sleep(inputInterval);
+                    } catch (InterruptedException e) {
+                        // Interrupted sleep. Nothing to do here.
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 
-    @Override
-    public void onPress(int primaryCode) {
+    public void onReceiveSelectAll() {
+        inputConnection = getCurrentInputConnection();
+        inputConnection.performContextMenuAction(KeyboardAction.CUSTOM_SELECT_ALL_INTENT.id);
     }
 
-    @Override
-    public void onRelease(int primaryCode) {
-    }
+    public void onReceiveDelete() {
+        onReceiveSelectAll();
 
-    @Override
-    public void onText(CharSequence text) {
+        inputConnection = getCurrentInputConnection();
+        inputConnection.commitText("", 0);
     }
-
-    @Override
-    public void swipeDown() {
-    }
-
-    @Override
-    public void swipeLeft() {
-    }
-
-    @Override
-    public void swipeRight() {
-    }
-
-    @Override
-    public void swipeUp() {
-    }
-
 }
