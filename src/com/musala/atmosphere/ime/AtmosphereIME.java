@@ -29,37 +29,57 @@ import android.view.inputmethod.InputConnection;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.musala.atmosphere.commons.ime.KeyboardAction;
+
 /**
  * Based entirely on the example provided by Google SDK in their Soft Keyboard Example.
  */
 public class AtmosphereIME extends InputMethodService {
-    private static final String EXTRA_TEXT_NAME = "text";
-
-    private static final String EXTRA_INTERVAL_NAME = "interval";
-
-    private static final int INTERVAL_DEFAULT_VALUE = 0;
+    private static final long DELAY_DEFAULT_VALUE = 0;
 
     private IncomingReceiver intentListener;
-
-    private InputConnection inputConnection;
 
     public class IncomingReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             KeyboardAction intentAction = KeyboardAction.fromAction(intent.getAction());
-
             if (intentAction != null) {
                 switch (intentAction) {
-                    case CUSTOM_INPUT_TEXT_INTENT:
+                    case INPUT_TEXT:
                         onReceiveInputText(intent);
                         break;
-                    case CUSTOM_DELETE_ALL_INTENT:
-                        onReceiveDelete();
+                    case DELETE_ALL:
+                        onReceiveDeleteAll();
                         break;
                     default:
                         break;
                 }
             }
+        }
+
+        public void onReceiveInputText(Intent intent) {
+            String text = intent.getStringExtra(KeyboardAction.INTENT_EXTRA_TEXT);
+            long inputInterval = intent.getLongExtra(KeyboardAction.INTENT_EXTRA_INPUT_SPEED, DELAY_DEFAULT_VALUE);
+
+            if (text == null) {
+                text = "";
+            }
+
+            if (inputInterval <= DELAY_DEFAULT_VALUE) {
+                inputText(text);
+            } else {
+                inputText(text, inputInterval);
+            }
+
+        }
+
+        public void onReceiveSelectAll() {
+            selectAll();
+        }
+
+        public void onReceiveDeleteAll() {
+            selectAll();
+            delete();
         }
     }
 
@@ -71,8 +91,8 @@ public class AtmosphereIME extends InputMethodService {
         super.onCreate();
         intentListener = new IncomingReceiver();
         IntentFilter filter = new IntentFilter();
-        filter.addAction(KeyboardAction.CUSTOM_INPUT_TEXT_INTENT.action);
-        filter.addAction(KeyboardAction.CUSTOM_DELETE_ALL_INTENT.action);
+        filter.addAction(KeyboardAction.INPUT_TEXT.intentAction);
+        filter.addAction(KeyboardAction.DELETE_ALL.intentAction);
         this.getApplicationContext().registerReceiver(intentListener, filter);
     }
 
@@ -96,52 +116,37 @@ public class AtmosphereIME extends InputMethodService {
         image.setPadding(30, 30, 30, 30);
         layout.setGravity(Gravity.CENTER);
         layout.addView(image);
-
         return layout;
     }
 
-    public void onReceiveInputText(Intent intent) {
-        int[] intentExtraArray = intent.getIntArrayExtra(EXTRA_TEXT_NAME);
-        int inputInterval = intent.getIntExtra(EXTRA_INTERVAL_NAME, INTERVAL_DEFAULT_VALUE);
+    public void inputText(String text) {
+        InputConnection inputConnection = getCurrentInputConnection();
+        inputConnection.commitText(text, text.length());
+    }
 
-        inputConnection = getCurrentInputConnection();
+    public void inputText(String text, long delayInterval) {
+        if (text != null && delayInterval >= 0) {
 
-        if (intentExtraArray.length != 0) {
-            StringBuilder textToCommit = new StringBuilder();
-
-            for (int intentExtraChar : intentExtraArray) {
-                textToCommit.append((Character.toChars(intentExtraChar)));
-            }
-
-            String text = textToCommit.toString();
-
-            if (inputInterval == INTERVAL_DEFAULT_VALUE) {
-                inputConnection.commitText(text, text.length());
-            } else {
-                for (char current : text.toCharArray()) {
-                    String input = new String(Character.toString(current));
-                    inputConnection.commitText(input, input.length());
-
-                    try {
-                        Thread.sleep(inputInterval);
-                    } catch (InterruptedException e) {
-                        // Interrupted sleep. Nothing to do here.
-                        e.printStackTrace();
-                    }
+            char[] chars = text.toCharArray();
+            for (char ch : chars) {
+                try {
+                    Thread.sleep(delayInterval);
+                } catch (InterruptedException e) {
+                    // Interrupted sleep. Nothing to do here.
+                    e.printStackTrace();
                 }
+                inputText(Character.toString(ch));
             }
         }
     }
 
-    public void onReceiveSelectAll() {
-        inputConnection = getCurrentInputConnection();
-        inputConnection.performContextMenuAction(KeyboardAction.CUSTOM_SELECT_ALL_INTENT.id);
+    public void selectAll() {
+        InputConnection inputConnection = getCurrentInputConnection();
+        inputConnection.performContextMenuAction(KeyboardAction.SELECT_ALL.id);
     }
 
-    public void onReceiveDelete() {
-        onReceiveSelectAll();
-
-        inputConnection = getCurrentInputConnection();
+    public void delete() {
+        InputConnection inputConnection = getCurrentInputConnection();
         inputConnection.commitText("", 0);
     }
 }
