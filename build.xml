@@ -88,5 +88,14 @@
     -->
     <!-- version-tag: cusotm -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
+	
+	<property name="dependency.projects" value="AtmosphereCommons"/>
+	<property name="lib.dir" value="libs"/>
+
+	<target name="update-libs">
+		<ant antfile="../common-build.xml" target="update-libs"/>
+	</target>
+
+	<target depends="update-libs, android_rules.release" name="release"/>
 
 </project>
