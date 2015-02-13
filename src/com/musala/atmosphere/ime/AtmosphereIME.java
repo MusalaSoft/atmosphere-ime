@@ -51,6 +51,9 @@ public class AtmosphereIME extends InputMethodService {
                     case DELETE_ALL:
                         onReceiveDeleteAll();
                         break;
+                    case SELECT_ALL:
+                        onReceiveSelectAll();
+                        break;
                     default:
                         break;
                 }
@@ -93,6 +96,7 @@ public class AtmosphereIME extends InputMethodService {
         IntentFilter filter = new IntentFilter();
         filter.addAction(KeyboardAction.INPUT_TEXT.intentAction);
         filter.addAction(KeyboardAction.DELETE_ALL.intentAction);
+        filter.addAction(KeyboardAction.SELECT_ALL.intentAction);
         this.getApplicationContext().registerReceiver(intentListener, filter);
     }
 
