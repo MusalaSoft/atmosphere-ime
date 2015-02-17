@@ -54,6 +54,9 @@ public class AtmosphereIME extends InputMethodService {
                     case SELECT_ALL:
                         onReceiveSelectAll();
                         break;
+                    case PASTE_TEXT:
+                        onReceivePaste();
+                        break;
                     default:
                         break;
                 }
@@ -73,7 +76,6 @@ public class AtmosphereIME extends InputMethodService {
             } else {
                 inputText(text, inputInterval);
             }
-
         }
 
         public void onReceiveSelectAll() {
@@ -83,6 +85,10 @@ public class AtmosphereIME extends InputMethodService {
         public void onReceiveDeleteAll() {
             selectAll();
             delete();
+        }
+
+        public void onReceivePaste() {
+            paste();
         }
     }
 
@@ -97,6 +103,7 @@ public class AtmosphereIME extends InputMethodService {
         filter.addAction(KeyboardAction.INPUT_TEXT.intentAction);
         filter.addAction(KeyboardAction.DELETE_ALL.intentAction);
         filter.addAction(KeyboardAction.SELECT_ALL.intentAction);
+        filter.addAction(KeyboardAction.PASTE_TEXT.intentAction);
         this.getApplicationContext().registerReceiver(intentListener, filter);
     }
 
@@ -152,5 +159,10 @@ public class AtmosphereIME extends InputMethodService {
     public void delete() {
         InputConnection inputConnection = getCurrentInputConnection();
         inputConnection.commitText("", 0);
+    }
+
+    public void paste() {
+        InputConnection inputConnection = getCurrentInputConnection();
+        inputConnection.performContextMenuAction(KeyboardAction.PASTE_TEXT.id);
     }
 }
