@@ -1,43 +1,38 @@
-/*
- * Copyright (C) 2008-2009 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package com.musala.atmosphere.ime;
 
+import android.animation.ValueAnimator;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
-import android.view.Gravity;
+import android.os.AsyncTask;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.musala.atmosphere.commons.ime.KeyboardAction;
 
 /**
- * Based entirely on the example provided by Google SDK in their Soft Keyboard Example.
+ * Input method for simulating text manipulations.
  */
 public class AtmosphereIME extends InputMethodService {
     private static final long DELAY_DEFAULT_VALUE = 0;
 
+    private static final float ROTATION_ANIMATION_BEGIN = 0;
+
+    private static final float ROTATION_ANIMATION_END = 360;
+
     private IncomingReceiver intentListener;
+
+    private ImageView logo;
+
+    private ValueAnimator logoRotateAnimator;
+
+    private long logoAnimationTime;
 
     public class IncomingReceiver extends BroadcastReceiver {
         @Override
@@ -107,6 +102,49 @@ public class AtmosphereIME extends InputMethodService {
         }
     }
 
+    private class InputTaskParameters {
+        public final String text;
+
+        public final long delay;
+
+        public InputTaskParameters(String text, long delay) {
+            this.text = text;
+            this.delay = delay;
+        }
+    }
+
+    private class DelayedInputTask extends AsyncTask<InputTaskParameters, Character, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            resumeAnimation();
+        }
+
+        @Override
+        protected Void doInBackground(InputTaskParameters... parametersArray) {
+            for (InputTaskParameters parameters : parametersArray) {
+                char[] chars = parameters.text.toCharArray();
+                
+                for (int i = 0; i < chars.length; i++) {
+                    try {
+                        Thread.sleep(parameters.delay);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    inputText(Character.toString(chars[i]));
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            pauseAnimation();
+        }
+
+    }
+
     /**
      * Main initialization of the input method component. Be sure to call to super class.
      */
@@ -123,6 +161,16 @@ public class AtmosphereIME extends InputMethodService {
         filter.addAction(KeyboardAction.COPY_TEXT.intentAction);
         filter.addAction(KeyboardAction.CUT_TEXT.intentAction);
         this.getApplicationContext().registerReceiver(intentListener, filter);
+
+        logoRotateAnimator = ValueAnimator.ofFloat(ROTATION_ANIMATION_BEGIN, ROTATION_ANIMATION_END);
+        logoRotateAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        logoRotateAnimator.addUpdateListener(new AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                logo.setRotation((Float) animation.getAnimatedValue());
+            }
+        });
     }
 
     /**
@@ -136,16 +184,22 @@ public class AtmosphereIME extends InputMethodService {
 
     @Override
     public View onCreateInputView() {
-        LinearLayout layout = new LinearLayout(this);
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
+        View layout = layoutInflater.inflate(R.layout.keyboard, null, false);
+        logoAnimationTime = 0;
+        logo = (ImageView) layout.findViewById(R.id.logo);
 
-        layout.setBackgroundColor(Color.BLACK);
-
-        ImageView image = new ImageView(this);
-        image.setImageResource(R.drawable.story);
-        image.setPadding(30, 30, 30, 30);
-        layout.setGravity(Gravity.CENTER);
-        layout.addView(image);
         return layout;
+    }
+
+    private void resumeAnimation() {
+        logoRotateAnimator.setCurrentPlayTime(logoAnimationTime);
+        logoRotateAnimator.start();
+    }
+
+    private void pauseAnimation() {
+        logoAnimationTime = logoRotateAnimator.getCurrentPlayTime();
+        logoRotateAnimator.cancel();
     }
 
     public void inputText(String text) {
@@ -156,16 +210,10 @@ public class AtmosphereIME extends InputMethodService {
     public void inputText(String text, long delayInterval) {
         if (text != null && delayInterval >= 0) {
 
-            char[] chars = text.toCharArray();
-            for (char ch : chars) {
-                try {
-                    Thread.sleep(delayInterval);
-                } catch (InterruptedException e) {
-                    // Interrupted sleep. Nothing to do here.
-                    e.printStackTrace();
-                }
-                inputText(Character.toString(ch));
-            }
+            // Make the animation run a full cycle for exactly the time it needs
+            // to input the provided text
+            logoRotateAnimator.setDuration(text.length() * delayInterval);
+            new DelayedInputTask().execute(new InputTaskParameters(text, delayInterval));
         }
     }
 
