@@ -61,6 +61,9 @@ public class AtmosphereIME extends InputMethodService {
                     case COPY_TEXT:
                         onReceiveCopy();
                         break;
+                    case CUT_TEXT:
+                        onReceiveCut();
+                        break;
                     default:
                         break;
                 }
@@ -98,6 +101,10 @@ public class AtmosphereIME extends InputMethodService {
         public void onReceiveCopy() {
             copy();
         }
+
+        public void onReceiveCut() {
+            cut();
+        }
     }
 
     /**
@@ -114,6 +121,7 @@ public class AtmosphereIME extends InputMethodService {
         filter.addAction(KeyboardAction.SELECT_ALL.intentAction);
         filter.addAction(KeyboardAction.PASTE_TEXT.intentAction);
         filter.addAction(KeyboardAction.COPY_TEXT.intentAction);
+        filter.addAction(KeyboardAction.CUT_TEXT.intentAction);
         this.getApplicationContext().registerReceiver(intentListener, filter);
     }
 
@@ -179,5 +187,10 @@ public class AtmosphereIME extends InputMethodService {
     public void copy() {
         InputConnection inputConnection = getCurrentInputConnection();
         inputConnection.performContextMenuAction(KeyboardAction.COPY_TEXT.id);
+    }
+
+    public void cut() {
+        InputConnection inputConnection = getCurrentInputConnection();
+        inputConnection.performContextMenuAction(KeyboardAction.CUT_TEXT.id);
     }
 }
