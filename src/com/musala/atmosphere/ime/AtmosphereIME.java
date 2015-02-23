@@ -43,6 +43,7 @@ public class AtmosphereIME extends InputMethodService {
         @Override
         public void onReceive(Context context, Intent intent) {
             KeyboardAction intentAction = KeyboardAction.fromAction(intent.getAction());
+
             if (intentAction != null) {
                 switch (intentAction) {
                     case INPUT_TEXT:
@@ -56,6 +57,9 @@ public class AtmosphereIME extends InputMethodService {
                         break;
                     case PASTE_TEXT:
                         onReceivePaste();
+                        break;
+                    case COPY_TEXT:
+                        onReceiveCopy();
                         break;
                     default:
                         break;
@@ -90,6 +94,10 @@ public class AtmosphereIME extends InputMethodService {
         public void onReceivePaste() {
             paste();
         }
+
+        public void onReceiveCopy() {
+            copy();
+        }
     }
 
     /**
@@ -98,12 +106,14 @@ public class AtmosphereIME extends InputMethodService {
     @Override
     public void onCreate() {
         super.onCreate();
+
         intentListener = new IncomingReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(KeyboardAction.INPUT_TEXT.intentAction);
         filter.addAction(KeyboardAction.DELETE_ALL.intentAction);
         filter.addAction(KeyboardAction.SELECT_ALL.intentAction);
         filter.addAction(KeyboardAction.PASTE_TEXT.intentAction);
+        filter.addAction(KeyboardAction.COPY_TEXT.intentAction);
         this.getApplicationContext().registerReceiver(intentListener, filter);
     }
 
@@ -164,5 +174,10 @@ public class AtmosphereIME extends InputMethodService {
     public void paste() {
         InputConnection inputConnection = getCurrentInputConnection();
         inputConnection.performContextMenuAction(KeyboardAction.PASTE_TEXT.id);
+    }
+
+    public void copy() {
+        InputConnection inputConnection = getCurrentInputConnection();
+        inputConnection.performContextMenuAction(KeyboardAction.COPY_TEXT.id);
     }
 }
