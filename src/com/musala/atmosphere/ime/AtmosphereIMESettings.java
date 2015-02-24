@@ -1,32 +1,63 @@
-/*
- * Copyright (C) 2008-2009 Google Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package com.musala.atmosphere.ime;
 
+import android.app.Activity;
+import android.app.FragmentTransaction;
+import android.content.Context;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 
-public class AtmosphereIMESettings extends PreferenceActivity {
+public class AtmosphereIMESettings extends Activity {
 
-    @SuppressWarnings("deprecation")
+    private static class SettingsFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            addPreferencesFromResource(R.xml.prefs);
+        }
+    }
+
     @Override
-    protected void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    protected void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
 
-        addPreferencesFromResource(R.xml.prefs);
+        setContentView(R.layout.activity_settings);
+        PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
+
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.replace(android.R.id.content, new SettingsFragment());
+        fragmentTransaction.commit();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.settings, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_switch_ime:
+                showImePickerDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void showImePickerDialog() {
+        InputMethodManager imeManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imeManager != null) {
+            imeManager.showInputMethodPicker();
+        }
+
     }
 
 }

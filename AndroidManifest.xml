@@ -10,10 +10,10 @@
 
     <application
         android:icon="@drawable/validator_logo"
-        android:label="AtmosphereIME" >
+        android:label="@string/app_name" >
         <service
-            android:name="AtmosphereIME"
-            android:label="AtmosphereIME"
+            android:name="com.musala.atmosphere.ime.AtmosphereIME"
+            android:label="@string/app_name"
             android:permission="android.permission.BIND_INPUT_METHOD" >
             <intent-filter>
                 <action android:name="android.view.InputMethod" />
@@ -25,8 +25,8 @@
         </service>
 
         <activity
-            android:name="AtmosphereIMESettings"
-            android:label="Atmosphere IME" >
+            android:name="com.musala.atmosphere.ime.AtmosphereIMESettings"
+            android:label="@string/preference_screen_title" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -6,9 +6,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
@@ -30,9 +32,15 @@ public class AtmosphereIME extends InputMethodService {
 
     private ImageView logo;
 
+    private View contentView;
+
     private ValueAnimator logoRotateAnimator;
 
     private long logoAnimationTime;
+
+    private boolean shouldDisplayLayout;
+
+    private boolean shouldDisplayAnimation;
 
     public class IncomingReceiver extends BroadcastReceiver {
         @Override
@@ -125,7 +133,7 @@ public class AtmosphereIME extends InputMethodService {
         protected Void doInBackground(InputTaskParameters... parametersArray) {
             for (InputTaskParameters parameters : parametersArray) {
                 char[] chars = parameters.text.toCharArray();
-                
+
                 for (int i = 0; i < chars.length; i++) {
                     try {
                         Thread.sleep(parameters.delay);
@@ -134,6 +142,7 @@ public class AtmosphereIME extends InputMethodService {
                     }
                     inputText(Character.toString(chars[i]));
                 }
+
             }
             return null;
         }
@@ -154,13 +163,15 @@ public class AtmosphereIME extends InputMethodService {
 
         intentListener = new IncomingReceiver();
         IntentFilter filter = new IntentFilter();
+
         filter.addAction(KeyboardAction.INPUT_TEXT.intentAction);
         filter.addAction(KeyboardAction.DELETE_ALL.intentAction);
         filter.addAction(KeyboardAction.SELECT_ALL.intentAction);
         filter.addAction(KeyboardAction.PASTE_TEXT.intentAction);
         filter.addAction(KeyboardAction.COPY_TEXT.intentAction);
         filter.addAction(KeyboardAction.CUT_TEXT.intentAction);
-        this.getApplicationContext().registerReceiver(intentListener, filter);
+
+        getApplicationContext().registerReceiver(intentListener, filter);
 
         logoRotateAnimator = ValueAnimator.ofFloat(ROTATION_ANIMATION_BEGIN, ROTATION_ANIMATION_END);
         logoRotateAnimator.setRepeatCount(ValueAnimator.INFINITE);
@@ -185,21 +196,47 @@ public class AtmosphereIME extends InputMethodService {
     @Override
     public View onCreateInputView() {
         LayoutInflater layoutInflater = LayoutInflater.from(this);
-        View layout = layoutInflater.inflate(R.layout.keyboard, null, false);
+        contentView = layoutInflater.inflate(R.layout.keyboard, null, false);
         logoAnimationTime = 0;
-        logo = (ImageView) layout.findViewById(R.id.logo);
+        logo = (ImageView) contentView.findViewById(R.id.logo);
 
-        return layout;
+        refreshPreferences();
+
+        return contentView;
+    }
+
+    @Override
+    public boolean onShowInputRequested(int flags, boolean configChange) {
+        refreshPreferences();
+        return super.onShowInputRequested(flags, configChange);
+    }
+
+    private void refreshPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        shouldDisplayAnimation = sharedPreferences.getBoolean(getString(R.string.display_animation_key), true);
+        shouldDisplayLayout = sharedPreferences.getBoolean(getString(R.string.display_ime_key), true);
+
+        if (contentView != null) {
+            if (shouldDisplayLayout) {
+                contentView.setVisibility(View.VISIBLE);
+            } else {
+                contentView.setVisibility(View.GONE);
+            }
+        }
     }
 
     private void resumeAnimation() {
-        logoRotateAnimator.setCurrentPlayTime(logoAnimationTime);
-        logoRotateAnimator.start();
+        if (shouldDisplayAnimation) {
+            logoRotateAnimator.setCurrentPlayTime(logoAnimationTime);
+            logoRotateAnimator.start();
+        }
     }
 
     private void pauseAnimation() {
-        logoAnimationTime = logoRotateAnimator.getCurrentPlayTime();
-        logoRotateAnimator.cancel();
+        if (shouldDisplayAnimation) {
+            logoAnimationTime = logoRotateAnimator.getCurrentPlayTime();
+            logoRotateAnimator.cancel();
+        }
     }
 
     public void inputText(String text) {

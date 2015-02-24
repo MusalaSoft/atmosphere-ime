@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Atmosphere IME</string>
+
+    <!-- Preference screen -->
+    <string name="preference_screen_title">Atmosphere IME Settings</string>
+    <string name="preference_screen_key">preferences</string>
+
+    <string name="display_ime_key">display_ime</string>
+    <string name="display_ime_title">Display IME</string>
+    <string name="display_ime_summary_on">The IME will be displayed when providing input</string>
+    <string name="display_ime_summary_off">The IME will NOT be displayed when providing input</string>
+
+    <string name="display_animation_key">use_animation</string>
+    <string name="display_animation_title">Display animation</string>
+    <string name="display_animation_summary_on">The IME will display animation when providing input</string>
+    <string name="display_animation_summary_off">The IME will NOT display animation when providing input</string>
+
+    <string name="action_switch_ime">Switch IME</string>
+
+</resources>
