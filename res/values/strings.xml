@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">Atmosphere IME</string>
+    <string name="empty"></string>
 
     <!-- Preference screen -->
     <string name="preference_screen_title">Atmosphere IME Settings</string>
@@ -16,6 +17,12 @@
     <string name="display_animation_title">Display animation</string>
     <string name="display_animation_summary_on">The IME will display animation when providing input</string>
     <string name="display_animation_summary_off">The IME will NOT display animation when providing input</string>
+
+    <string name="hardware_keyboard_notice_key">has_hardware_keyboard</string>
+    <string name="hardware_keyboard_notice_summary">The device is currently set to use the hardware keyboard which will NOT display the Atmosphere IME. To change this use \"switch ime\".</string>
+
+    <string name="ime_not_set_notice_key">ime_not_set</string>
+    <string name="ime_not_set_notice_summary">The Atmosphere IME is not set as default input method. To change this use \"switch ime\".</string>
 
     <string name="action_switch_ime">Switch IME</string>
 

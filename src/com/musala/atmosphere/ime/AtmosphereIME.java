@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.os.AsyncTask;
@@ -41,6 +42,8 @@ public class AtmosphereIME extends InputMethodService {
     private boolean shouldDisplayLayout;
 
     private boolean shouldDisplayAnimation;
+
+    private boolean deviceHasHardwareKeyboard;
 
     public class IncomingReceiver extends BroadcastReceiver {
         @Override
@@ -179,7 +182,9 @@ public class AtmosphereIME extends InputMethodService {
 
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                logo.setRotation((Float) animation.getAnimatedValue());
+                if (logo != null) {
+                    logo.setRotation((Float) animation.getAnimatedValue());
+                }
             }
         });
     }
@@ -241,7 +246,9 @@ public class AtmosphereIME extends InputMethodService {
 
     public void inputText(String text) {
         InputConnection inputConnection = getCurrentInputConnection();
-        inputConnection.commitText(text, text.length());
+        if (inputConnection != null) {
+            inputConnection.commitText(text, text.length());
+        }
     }
 
     public void inputText(String text, long delayInterval) {
@@ -256,26 +263,36 @@ public class AtmosphereIME extends InputMethodService {
 
     public void selectAll() {
         InputConnection inputConnection = getCurrentInputConnection();
-        inputConnection.performContextMenuAction(KeyboardAction.SELECT_ALL.id);
+        if (inputConnection != null) {
+            inputConnection.performContextMenuAction(KeyboardAction.SELECT_ALL.id);
+        }
     }
 
     public void delete() {
         InputConnection inputConnection = getCurrentInputConnection();
-        inputConnection.commitText("", 0);
+        if (inputConnection != null) {
+            inputConnection.commitText("", 0);
+        }
     }
 
     public void paste() {
         InputConnection inputConnection = getCurrentInputConnection();
-        inputConnection.performContextMenuAction(KeyboardAction.PASTE_TEXT.id);
+        if (inputConnection != null) {
+            inputConnection.performContextMenuAction(KeyboardAction.PASTE_TEXT.id);
+        }
     }
 
     public void copy() {
         InputConnection inputConnection = getCurrentInputConnection();
-        inputConnection.performContextMenuAction(KeyboardAction.COPY_TEXT.id);
+        if (inputConnection != null) {
+            inputConnection.performContextMenuAction(KeyboardAction.COPY_TEXT.id);
+        }
     }
 
     public void cut() {
         InputConnection inputConnection = getCurrentInputConnection();
-        inputConnection.performContextMenuAction(KeyboardAction.CUT_TEXT.id);
+        if (inputConnection != null) {
+            inputConnection.performContextMenuAction(KeyboardAction.CUT_TEXT.id);
+        }
     }
 }

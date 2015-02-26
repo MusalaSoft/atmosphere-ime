@@ -18,4 +18,14 @@
         android:summaryOn="@string/display_animation_summary_on"
         android:title="@string/display_animation_title" />
 
+    <Preference
+        android:key="@string/hardware_keyboard_notice_key"
+        android:persistent="false"
+        android:selectable="false" />
+
+    <Preference
+        android:key="@string/ime_not_set_notice_key"
+        android:persistent="false"
+        android:selectable="false" />
+
 </PreferenceScreen>
