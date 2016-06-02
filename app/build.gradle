@@ -1,0 +1,63 @@
+apply plugin: 'com.android.application'
+apply plugin: 'maven-publish'
+
+android {
+    compileSdkVersion 17
+    buildToolsVersion "23.0.3"
+
+    defaultConfig {
+        applicationId "com.musala.atmosphere.ime"
+        minSdkVersion 11
+        targetSdkVersion 17
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(releaseStoreFile)
+            storePassword releaseStorePassword
+            keyAlias releaseKeyAlias
+            keyPassword releaseKeyPassword
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
+}
+
+version = '0.0.1'
+
+dependencies {
+    compile 'de.mindpipe.android:android-logging-log4j:1.0.3'
+    compile ('com.musala.atmosphere:atmosphere-commons:0.0.1') {
+        exclude group: 'android'
+        exclude group: 'log4j'
+    }
+}
+
+publishToMavenLocal.dependsOn assembleRelease
+
+publishing {
+    publications {
+        atmosphereIme(MavenPublication) {
+            groupId 'com.musala.atmosphere'
+            artifactId 'atmosphere-ime'
+            version version
+
+            artifact("$buildDir/outputs/apk/${project.getName()}-release.apk")
+        }
+    }
+
+    repositories {
+        mavenLocal()
+    }
+}
