@@ -37,7 +37,6 @@ android {
 version = '0.0.1'
 
 dependencies {
-    compile 'de.mindpipe.android:android-logging-log4j:1.0.3'
     compile ('com.musala.atmosphere:atmosphere-commons:0.0.1') {
         exclude group: 'android'
         exclude group: 'log4j'
