@@ -38,7 +38,7 @@ version = '0.0.1'
 
 dependencies {
     compile ('com.musala.atmosphere:atmosphere-commons:0.0.1') {
-        exclude group: 'android'
+        exclude module: 'framework-api19'
         exclude group: 'log4j'
     }
 }
