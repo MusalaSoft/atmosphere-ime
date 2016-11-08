@@ -1,3 +1,5 @@
+See our site for better context of this readme. [Click here](http://atmosphereframework.com/)
+
 # atmosphere-ime
 This is a simple implementation of an input keyboard for Android, part of the ATMOSPHERE mobile testing framework. It is needed by tests that require text input or other text operations, such as cut, copy, select, etc.
 
