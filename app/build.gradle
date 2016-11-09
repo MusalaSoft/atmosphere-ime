@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'maven-publish'
 
 android {
-    compileSdkVersion 17
+    compileSdkVersion 19
     buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "com.musala.atmosphere.ime"
         minSdkVersion 11
-        targetSdkVersion 17
+        targetSdkVersion 19
     }
 
     buildTypes {
