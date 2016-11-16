@@ -6,7 +6,7 @@ This is a simple implementation of an input keyboard for Android, part of the AT
 ## Project setup
 
 ## Android SDK
-This is an Android project, so you will need to have a local Android SDK installation (build-tools `v23.0.3` and API 19 are required). You can find more info on how to setup the Android SDK [here][1]. Note that if you plan to work on the atmosphere-ime you can download the whole Android Studio + Android SDK bundle.
+This is an Android project, so you will need to have a local Android SDK installation (build-tools `v25.0.0` and API 25 are required). You can find more info on how to setup the Android SDK [here][1]. Note that if you plan to work on the atmosphere-ime you can download the whole Android Studio + Android SDK bundle.
 
 ## Build the project
 You can build the project using the included gradle wrapper.
