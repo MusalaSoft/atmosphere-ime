@@ -32,6 +32,12 @@ android {
             signingConfig signingConfigs.release
         }
     }
+
+    // This is important, it will run lint checks but won't abort build
+    // It's required because log4j causes warnings that stop the build
+    lintOptions {
+      abortOnError false
+    }
 }
 
 version = '0.0.1'
