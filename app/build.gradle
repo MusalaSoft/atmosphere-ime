@@ -43,7 +43,7 @@ android {
 version = '0.0.1'
 
 dependencies {
-    compile ('com.musala.atmosphere:atmosphere-commons:0.0.1') {
+    compile ('com.musala.atmosphere:atmosphere-commons:0.+') {
         exclude module: 'framework-api19'
         exclude group: 'log4j'
     }
@@ -65,4 +65,20 @@ publishing {
     repositories {
         mavenLocal()
     }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    failOnError false
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
 }
