@@ -16,6 +16,15 @@
 
 apply plugin: 'com.android.application'
 apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+  }
+}
 
 android {
     compileSdkVersion 25
@@ -52,11 +61,17 @@ android {
     // This is important, it will run lint checks but won't abort build
     // It's required because log4j causes warnings that stop the build
     lintOptions {
-      abortOnError false
+        abortOnError false
     }
 }
 
+// bintray publishing parameters
 version = '0.0.1'
+def organizationName = 'musala'
+def repoName = 'atmosphere'
+def projectName = 'atmosphere-ime'
+def url = 'https://github.com/MusalaSoft/atmosphere-ime.git'
+def description = 'Add javadocJar and sourcesJar tasks to build.gradle and update the atmosphere-commons dependency version'
 
 dependencies {
     compile ('com.musala.atmosphere:atmosphere-commons:0.+') {
@@ -71,10 +86,15 @@ publishing {
     publications {
         atmosphereIme(MavenPublication) {
             groupId 'com.musala.atmosphere'
-            artifactId 'atmosphere-ime'
+            artifactId "$projectName"
             version version
 
             artifact("$buildDir/outputs/apk/${project.getName()}-release.apk")
+
+            if (System.getProperty('bintray.user') != null) {
+                artifact sourcesJar
+                artifact javadocJar
+            }
         }
     }
 
@@ -97,4 +117,36 @@ task javadoc(type: Javadoc) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
+}
+
+/*
+ This is publishing task that uploads the artifacts to bintray.com.
+ see: https://github.com/bintray/gradle-bintray-plugin
+ see: https://reflectoring.io/guide-publishing-to-bintray-with-gradle/
+
+ Use the following command for automatic upload to bintray:
+ $ ./gradlew bintrayUpload -Dbintray.user=<BINTRAY_USERNAME> -Dbintray.key=<BINTRAY_API_KEY> -Dgpg.pass=<ATMOSPHERE_PASSPHRASE>
+*/
+bintray {
+    user = System.getProperty('bintray.user')
+    key = System.getProperty('bintray.key')
+    publications = ['atmosphereIme']
+
+	pkg {
+        repo = "$repoName" // existing repository in bintray to add the artifacts to
+        name = "$projectName" // package name, current project name
+        userOrg = "$organizationName" // the name of the organization, If not added will use 'BINTRAY_USER' by default
+        licenses = ['GPL-3.0']
+        vcsUrl = "$url" // your VCS URL
+        version {
+            name = project.version.toString()
+            desc = "$description"
+            released  = new Date()
+
+            gpg {
+                sign = true // Determines whether to GPG sign the files. The default is false
+                passphrase = System.getProperty('gpg.pass') // Optional. The passphrase for GPG signing'
+            }
+        }
+    }
 }
